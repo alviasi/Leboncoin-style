@@ -5,7 +5,7 @@
   <style>
     body { font-family: Arial; margin: 0; background: #f5f5f5; }
     header { background: orange; padding: 15px; color: white; text-align: center; }
-    .container { padding: 20px; }
+    .container { padding: 20px; max-width: 700px; margin: auto; }
     .card {
       background: white;
       padding: 15px;
@@ -17,6 +17,7 @@
       margin: 5px 0;
       width: 100%;
     }
+    img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; }
   </style>
 </head>
 <body><header>
@@ -24,6 +25,7 @@
 </header><div class="container">  <h2>Post an Ad</h2>
   <input type="text" id="title" placeholder="Ad Title">
   <input type="text" id="price" placeholder="Price">
+  <input type="file" id="image">
   <button onclick="addAd()">Post Ad</button>  <h2>Ads</h2>
   <div id="ads"></div></div><script>
   let ads = [];
@@ -31,14 +33,26 @@
   function addAd() {
     const title = document.getElementById('title').value;
     const price = document.getElementById('price').value;
+    const imageInput = document.getElementById('image');
 
     if (!title || !price) {
       alert('Please fill all fields');
       return;
     }
 
-    ads.push({ title, price });
-    displayAds();
+    const file = imageInput.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        ads.push({ title, price, image: e.target.result });
+        displayAds();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      ads.push({ title, price, image: null });
+      displayAds();
+    }
   }
 
   function displayAds() {
@@ -48,6 +62,7 @@
     ads.forEach(ad => {
       adsDiv.innerHTML += `
         <div class="card">
+          ${ad.image ? `<img src="${ad.image}">` : ''}
           <h3>${ad.title}</h3>
           <p>Price: ${ad.price}€</p>
         </div>
