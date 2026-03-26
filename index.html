@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini Leboncoin Clone</title>
+  <style>
+    body { font-family: Arial; margin: 0; background: #f5f5f5; }
+    header { background: orange; padding: 15px; color: white; text-align: center; }
+    .container { padding: 20px; }
+    .card {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body><header>
+  <h1>Mini Leboncoin Clone</h1>
+</header><div class="container">  <h2>Post an Ad</h2>
+  <input type="text" id="title" placeholder="Ad Title">
+  <input type="text" id="price" placeholder="Price">
+  <button onclick="addAd()">Post Ad</button>  <h2>Ads</h2>
+  <div id="ads"></div></div><script>
+  let ads = [];
+
+  function addAd() {
+    const title = document.getElementById('title').value;
+    const price = document.getElementById('price').value;
+
+    if (!title || !price) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    ads.push({ title, price });
+    displayAds();
+  }
+
+  function displayAds() {
+    const adsDiv = document.getElementById('ads');
+    adsDiv.innerHTML = '';
+
+    ads.forEach(ad => {
+      adsDiv.innerHTML += `
+        <div class="card">
+          <h3>${ad.title}</h3>
+          <p>Price: ${ad.price}€</p>
+        </div>
+      `;
+    });
+  }
+</script></body>
+</html>
