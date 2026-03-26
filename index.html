@@ -1,15 +1,19 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mini Leboncoin Clone</title>
+  <title>Mini Leboncoin Clone + Admin Panel</title>
   <style>
     body { font-family: Arial; margin: 0; background: #f5f5f5; }
     header { background: orange; padding: 15px; color: white; text-align: center; }
-    .container { padding: 20px; max-width: 700px; margin: auto; }
+    .container { padding: 20px; max-width: 800px; margin: auto; }
     .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 10px; }
     input, select, button { padding: 10px; margin: 5px 0; width: 100%; }
     img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; }
     .whatsapp { background: #25D366; color: white; text-decoration: none; display: inline-block; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    .admin { background: #222; color: white; padding: 10px; margin-top: 20px; }
+    .btn { padding: 8px; margin-top: 5px; cursor: pointer; }
+    .approve { background: green; color: white; }
+    .reject { background: red; color: white; }
   </style>
 </head>
 <body><header>
@@ -29,9 +33,9 @@
     <option value="Réparations">Réparations</option>
     <option value="Baby Sitting">Baby Sitting</option>
   </select>
-  <input type="text" id="phone" placeholder="WhatsApp Number (e.g. 33612345678)">
+  <input type="text" id="phone" placeholder="WhatsApp Number">
   <input type="file" id="image">
-  <button onclick="addAd()">Post Ad</button>  <h2>Search</h2>
+  <button onclick="addAd()">Submit Ad (Pending)</button>  <h2>Search</h2>
   <input type="text" id="searchText" placeholder="Search title">
   <input type="number" id="maxPrice" placeholder="Max price">
   <select id="searchCategory">
@@ -46,9 +50,13 @@
     <option value="Réparations">Réparations</option>
     <option value="Baby Sitting">Baby Sitting</option>
   </select>
-  <button onclick="displayAds()">Search</button>  <h2>Ads</h2>
-  <div id="ads"></div></div><script>
-  let ads = [];
+  <button onclick="displayAds()">Search</button>  <h2>Published Ads</h2>
+  <div id="ads"></div>  <div class="admin">
+    <h2>Admin Panel (Pending Ads)</h2>
+    <div id="pendingAds"></div>
+  </div></div><script>
+  let pendingAds = [];
+  let approvedAds = [];
 
   function addAd() {
     const title = document.getElementById('title').value;
@@ -58,7 +66,7 @@
     const imageInput = document.getElementById('image');
 
     if (!title || !price || !category || !phone) {
-      alert('Please fill all fields');
+      alert('Fill all fields');
       return;
     }
 
@@ -67,14 +75,43 @@
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        ads.push({ title, price: Number(price), category, phone, image: e.target.result });
-        displayAds();
+        pendingAds.push({ title, price: Number(price), category, phone, image: e.target.result });
+        displayPending();
       };
       reader.readAsDataURL(file);
     } else {
-      ads.push({ title, price: Number(price), category, phone, image: null });
-      displayAds();
+      pendingAds.push({ title, price: Number(price), category, phone, image: null });
+      displayPending();
     }
+  }
+
+  function displayPending() {
+    const div = document.getElementById('pendingAds');
+    div.innerHTML = '';
+
+    pendingAds.forEach((ad, index) => {
+      div.innerHTML += `
+        <div class="card">
+          ${ad.image ? `<img src="${ad.image}">` : ''}
+          <h3>${ad.title}</h3>
+          <p>${ad.category} - ${ad.price}€</p>
+          <button class="btn approve" onclick="approveAd(${index})">Approve</button>
+          <button class="btn reject" onclick="rejectAd(${index})">Reject</button>
+        </div>
+      `;
+    });
+  }
+
+  function approveAd(index) {
+    approvedAds.push(pendingAds[index]);
+    pendingAds.splice(index, 1);
+    displayPending();
+    displayAds();
+  }
+
+  function rejectAd(index) {
+    pendingAds.splice(index, 1);
+    displayPending();
   }
 
   function displayAds() {
@@ -85,7 +122,7 @@
 
     adsDiv.innerHTML = '';
 
-    const filtered = ads.filter(ad => {
+    const filtered = approvedAds.filter(ad => {
       return (
         (!searchText || ad.title.toLowerCase().includes(searchText)) &&
         (!maxPrice || ad.price <= maxPrice) &&
@@ -98,9 +135,9 @@
         <div class="card">
           ${ad.image ? `<img src="${ad.image}">` : ''}
           <h3>${ad.title}</h3>
-          <p>Category: ${ad.category}</p>
-          <p>Price: ${ad.price}€</p>
-          <a class="whatsapp" href="https://wa.me/${ad.phone}" target="_blank">Chat on WhatsApp</a>
+          <p>${ad.category}</p>
+          <p>${ad.price}€</p>
+          <a class="whatsapp" href="https://wa.me/${ad.phone}" target="_blank">Chat</a>
         </div>
       `;
     });
