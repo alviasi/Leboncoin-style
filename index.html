@@ -18,6 +18,15 @@
       width: 100%;
     }
     img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; }
+    .whatsapp {
+      background: #25D366;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body><header>
@@ -25,6 +34,7 @@
 </header><div class="container">  <h2>Post an Ad</h2>
   <input type="text" id="title" placeholder="Ad Title">
   <input type="text" id="price" placeholder="Price">
+  <input type="text" id="phone" placeholder="WhatsApp Number (e.g. 33612345678)">
   <input type="file" id="image">
   <button onclick="addAd()">Post Ad</button>  <h2>Ads</h2>
   <div id="ads"></div></div><script>
@@ -33,9 +43,10 @@
   function addAd() {
     const title = document.getElementById('title').value;
     const price = document.getElementById('price').value;
+    const phone = document.getElementById('phone').value;
     const imageInput = document.getElementById('image');
 
-    if (!title || !price) {
+    if (!title || !price || !phone) {
       alert('Please fill all fields');
       return;
     }
@@ -45,12 +56,12 @@
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        ads.push({ title, price, image: e.target.result });
+        ads.push({ title, price, phone, image: e.target.result });
         displayAds();
       };
       reader.readAsDataURL(file);
     } else {
-      ads.push({ title, price, image: null });
+      ads.push({ title, price, phone, image: null });
       displayAds();
     }
   }
@@ -65,6 +76,9 @@
           ${ad.image ? `<img src="${ad.image}">` : ''}
           <h3>${ad.title}</h3>
           <p>Price: ${ad.price}€</p>
+          <a class="whatsapp" href="https://wa.me/${ad.phone}" target="_blank">
+            Chat on WhatsApp
+          </a>
         </div>
       `;
     });
